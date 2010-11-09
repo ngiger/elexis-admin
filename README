@@ -13,3 +13,15 @@ Typical setup is:
   a safe in a Swiss bank
 - Optional: Linux/MacOSX/Win?? PC with full elexis installation
 - Optional: ThinClient (inside cabinet or via internet) using x2go
+
+Tools used are (among a lot of others):
+- simple-cdd (Custom Debian Distribution)
+- puppet 
+
+
+New to puppet?
+Then have a look at doc/getting_started.html
+
+http://bitfieldconsulting.com/puppet-tutorial
+http://bitfieldconsulting.com/scaling-puppet-with-distributed-version-control
+
