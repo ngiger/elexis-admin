@@ -1,0 +1,18 @@
+desc "Produces html files "
+task :html do
+  pwd = Dir.getwd
+  Dir[File.join(pwd,'**/*.lyx')].each do |file|
+    sh "elyxer #{File.expand_path(file)} #{File.expand_path(file).sub('.lyx','.html')} 2>/dev/null"
+  end
+end
+
+desc "Produces pdf files "
+task :pdf do
+  Dir[File.join(pwd,'**/*.lyx')].each do |file|
+    sh "lyx --export pdf #{File.expand_path(file)} 2>/dev/null"
+  end
+end
+
+task :default => [:pdf, :html]
+
+
