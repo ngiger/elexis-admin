@@ -1,18 +1,98 @@
-desc "Produces html files "
-task :html do
-  pwd = Dir.getwd
-  Dir[File.join(pwd,'**/*.lyx')].each do |file|
-    sh "elyxer #{File.expand_path(file)} #{File.expand_path(file).sub('.lyx','.html')} 2>/dev/null"
+#!/bin/env ruby
+# These values reflect my environment, please adapt it to suit your needs
+#APPROX_SERVER="http://localhost:9999/debian/"
+APPROX_SERVER="http://localhost:9999/debian/"
+OptRoot='/opt'
+ARCH="i386" # i386,amd64,ppc,ppc64 or whatever Debian supports
+ENV['ARCH']=ARCH
+
+# You will probably want to fetch the configuration from your server
+# This one is in any case private and of no use for you!
+COSRE = { :server   => 'cosre.dyndns.org',
+          :username => 'niklaus',
+	  :path     => '/home/niklaus/.bashrc',
+}
+
+# net/scp does not work
+# throughs me a `could not settle on language_client algorithm' exception
+# Also puppet had problems installing net-scp gem (I am running jruby)
+require 'fileutils'
+# need to expand search path for our directory to enable reading conf files
+
+desc "Prepare simple_cdd environment in #{OptRoot}"
+task "simple_cdd_env" do
+  ENV['LANG']="C" # Symplifies debugging as all errors will be printed in english
+  ['images'].each do
+    |path|
+      t = "#{OptRoot}/#{path}"
+      FileUtils.makedirs(t)		    if !File.directory?(t)
+      FileUtils.ln_s(t,".", :verbose=>true) if !File.exists?(File.basename(t))
   end
 end
 
-desc "Produces pdf files "
-task :pdf do
-  Dir[File.join(pwd,'**/*.lyx')].each do |file|
-    sh "lyx --export pdf #{File.expand_path(file)} 2>/dev/null"
+$AllConfs = Hash.new
+class SimpleCddConf
+  Fields = ['conf','description', 'locale','keyboard','release',
+            'packages','preseed','postinst'].each { 
+	      |x| eval "attr_accessor :#{x}" 
+	    }
+  def initialize(name)
+    @name=name
+    $AllConfs[name]= self
+    puts self.inspect
+    return self
+  end  
+end
+
+
+def runSimpleCdd(name)
+  FileUtils.rm_rf('profiles')
+  require "#{Dir.pwd}/#{name}" # reads in name.rb
+  cnf = $AllConfs[name]
+  FileUtils.makedirs('profiles')
+  #cnf.conf+="profiles=\"#{name}\"\n"
+  cnf.conf+="debian-mirror=\"#{APPROX_SERVER}\"\n"
+  ['conf','description','packages','preseed','postinst'].each { |x|
+    d = "profiles/#{name}.#{x}"
+    ausgabe=File.open(d, "w+")
+    ausgabe.puts(eval("cnf.#{x}"))
+    ausgabe.close
+  }
+  cmd = "time build-simple-cdd --dist #{cnf.release} \
+--keyboard #{cnf.keyboard} --locale  #{cnf.locale} \
+--conf profiles/#{name}.conf --debian-mirror #{APPROX_SERVER} \
+2>&1 | tee build_#{name}.log"
+  sh cmd
+end
+
+def testIsoImage(name)
+  desc "Create qcow2 images and runs #{name}-iso image"
+  task "run_kvm_#{name}" => [ name ] do
+    Dir.chdir('images')
+    cmd = "qemu-img create  #{name}.qcow2 40GB"
+    cmd = "kvm -boot d -hda #{name}.qcow2 -cdrom debian-testing-i386-CD-1.iso"
   end
 end
 
-task :default => [:pdf, :html]
+def add_iso_target(name, opts = {})
+  desc "Produces ISO #{name}"
+  task name => [ 'simple_cdd_env'] do
+    datei = name+'.rb'
+    if File.exists?(datei) then
+      p "origin #{datei} exists locally"
+    else
+      p "download #{datei} #{opts.inspect}"
+      # download a file from a remote server
+      cmd =  "scp #{opts[:username]}@#{opts[:server]}:#{opts[:path]} #{datei}"
+      sh cmd
+    end
+    runSimpleCdd(name)
+  end
+  testIsoImage(name)
+end
+
+add_iso_target('demo-dhcp',   COSRE)
+add_iso_target('demo-fix-ip', COSRE)
+
 
 
