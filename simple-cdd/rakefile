@@ -1,7 +1,6 @@
 #!/bin/env ruby
 # These values reflect my environment, please adapt it to suit your needs
-#APPROX_SERVER="http://localhost:9999/debian/"
-APPROX_SERVER="http://localhost:9999/debian/"
+APPROX_SERVER="http://fest:9999/debian/"
 OptRoot='/opt'
 ARCH="i386" # i386,amd64,ppc,ppc64 or whatever Debian supports
 ENV['ARCH']=ARCH
@@ -50,17 +49,22 @@ def runSimpleCdd(name)
   require "#{Dir.pwd}/#{name}" # reads in name.rb
   cnf = $AllConfs[name]
   FileUtils.makedirs('profiles')
-  #cnf.conf+="profiles=\"#{name}\"\n"
+  cnf.conf+="profiles=\"#{name}\"\n"
+  cnf.conf+="debian_mirror=\"#{APPROX_SERVER}\"\n"
+  cnf.conf+="wget_debian_mirror=\"#{APPROX_SERVER}\"\n"
   cnf.conf+="debian-mirror=\"#{APPROX_SERVER}\"\n"
+  cnf.conf+="wget-debian-mirror=\"#{APPROX_SERVER}\"\n"
   ['conf','description','packages','preseed','postinst'].each { |x|
     d = "profiles/#{name}.#{x}"
     ausgabe=File.open(d, "w+")
     ausgabe.puts(eval("cnf.#{x}"))
     ausgabe.close
   }
-  cmd = "time build-simple-cdd --dist #{cnf.release} \
+  cmd = "time wget_debian_mirror=#{APPROX_SERVER} build-simple-cdd --dist #{cnf.release} \
 --keyboard #{cnf.keyboard} --locale  #{cnf.locale} \
---conf profiles/#{name}.conf --debian-mirror #{APPROX_SERVER} \
+--conf profiles/#{name}.conf  \
+--profiles #{name} \
+--debian-mirror #{APPROX_SERVER} \
 2>&1 | tee build_#{name}.log"
   sh cmd
 end

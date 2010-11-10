@@ -6,10 +6,9 @@ cnf.release='lenny'
 cnf.keyboard='sf'
 cnf.locale='fr_ch'
 cnf.conf=<<EOF
-# cannot specify non-free!
-mirror_components="main contrib",
-security-mirror="http://security.debian.org/",
-exportall_extras="custom-file,profiles/custom-file",
+mirror_components="main contrib non-free"
+security-mirror="http://security.debian.org/"
+exportall_extras="custom-file,profiles/custom-file"
 EOF
 
 if defined?(ARCH) and ARCH=='x86'
@@ -17,22 +16,26 @@ if defined?(ARCH) and ARCH=='x86'
 end
 
 cnf.packages=<<EOF
-# puppet
-# puppetmaster
-# openssh-client
-# openssh-server
-# anacron
-# rsync
-# sudo
-# vim
-# git
-# etckeeper
-# smartmontools
-# parted
-# dlocate
-# locate
-# findutils
+puppet
+puppetmaster
+openssh-client
+openssh-server
+anacron
+rsync
+sudo
+vim
+etckeeper
+smartmontools
+parted
+dlocate
+locate
+findutils
 EOF
+if cnf.release=='lenny'
+cnf.packages+="git-core\n"
+else
+cnf.packages+="git\n"
+end
 
 cnf.postinst=<<EOF
 #!/bin/sh
