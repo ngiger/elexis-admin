@@ -1,0 +1,639 @@
+#LyX 1.6.7 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\language ngerman
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+elexis-admin
+\end_layout
+
+\begin_layout Abstract
+A guide to a secure, repeatable, cost-effective and efficient setup and
+ administration for Elexis servers and clients.
+ En essai of combining best of breed HW, SW tools and practices to give
+ medical practitioners a reliable, easy to use environment for running Elexis.
+\end_layout
+
+\begin_layout Abstract
+The medical practitioner should be able to customize the solution to his/her
+ specific needs, e.g.
+\end_layout
+
+\begin_layout Abstract
+* not impose a specific OS for his/her PC
+\end_layout
+
+\begin_layout Abstract
+* allow him to access his data from outside, eg.
+ while visiting patient
+\end_layout
+
+\begin_layout Abstract
+* use the server for other purposes, e.g.
+ running a file service or a wiki
+\end_layout
+
+\begin_layout Abstract
+* x2g0 offers (but not imposes) a hassle free installation on non free OS
+\end_layout
+
+\begin_layout Abstract
+* choose a solution for HW based resilience which matches best his cost/risk
+ evaluation
+\end_layout
+
+\begin_layout Right Address
+Niklaus Giger
+\begin_inset Newline newline
+\end_inset
+
+Wieshoschet 6
+\begin_inset Newline newline
+\end_inset
+
+CH-8753 Mollis
+\begin_inset Newline newline
+\end_inset
+
+niklaus.giger@member.fsf.org
+\end_layout
+
+\begin_layout Section
+Goals
+\end_layout
+
+\begin_layout Standard
+I started the GitHub project 
+\begin_inset CommandInset href
+LatexCommand href
+name "elexis-admin"
+target "https://github.com/ngiger/elexis-admin"
+
+\end_inset
+
+ to document my thoughts and hoping to find a few interested parties to
+ discuss with.
+\end_layout
+
+\begin_layout Standard
+The project should be a starting point for any Medelexis-OC (or even other
+ people) which have to administer dispersed, small networks.
+\end_layout
+
+\begin_layout Standard
+Once the goals, policies and configuration details are defined in collaboration
+ with the client, it should take at the most 30 minutes to setup a working
+ environment composed of one (or more) servers and a few PC/thin client
+ workstations.
+\end_layout
+
+\begin_layout Standard
+The installation is done using a modified Debian installation (simple-cdd),
+ which only task is to install a minimal (GUI-less) system on the server/client
+ PC.
+ This system then bootstraps all the rest using puppet.
+\end_layout
+
+\begin_layout Section
+Initial installation
+\end_layout
+
+\begin_layout Subsection
+Responsabilities
+\end_layout
+
+\begin_layout Itemize
+Setup network configuration (DHCP or fix IP)
+\end_layout
+
+\begin_layout Itemize
+Disk partitioning
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Create two alternate system partitions to be able to revert to the old state
+ in case of problems after an update
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Root password and initial username/password
+\end_layout
+
+\begin_layout Itemize
+Distribute ssh-keys for machine, root & initial user
+\end_layout
+
+\begin_layout Itemize
+Install needed packets 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+puppet
+\end_layout
+
+\begin_layout Itemize
+git
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+with some goodies when things go wrong
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+openssh-server
+\end_layout
+
+\begin_layout Itemize
+etckeeper
+\end_layout
+
+\begin_layout Itemize
+smartmontools
+\end_layout
+
+\begin_layout Itemize
+vim
+\end_layout
+
+\begin_layout Itemize
+sudo
+\end_layout
+
+\begin_layout Itemize
+parted
+\end_layout
+
+\end_deeper
+\begin_layout Subsection
+How to generate the ISO-CD
+\end_layout
+
+\begin_layout Standard
+The following debian-packages are needed:
+\end_layout
+
+\begin_layout Itemize
+simple-cdd
+\end_layout
+
+\begin_layout Itemize
+approx (or you must specify a different APPROX_SERVER in the rakefile)
+\end_layout
+
+\begin_layout Standard
+Under simple-cdd you find a rakefile, simple-cdd.pp and configs name demo-dhcp
+ and demo-fix-ip.
+ The rakefile is responsible for creating a ISO-CD.
+ It uses configuration data (normally downloaded via scp from your own trusted
+ server).
+\end_layout
+
+\begin_layout Standard
+Have a look at these files and the man page of simple-cdd and you should
+ be able to figure out the intent.
+ If not drop me note.
+ The task should be as easy as:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+rake demo-dhcp demo-fix-ip
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+TODO
+\end_layout
+
+\begin_layout Standard
+Should we add targets to generate the needed ssh-keys and upload the newly
+ generated key/config-files?
+\end_layout
+
+\begin_layout Subsection
+Warum?
+\end_layout
+
+\begin_layout Standard
+Ich habe ja vor Jahren es mit cfengine versucht und bin davon abgekommen.
+ Warum?
+\end_layout
+
+\begin_layout Itemize
+Aufwand/Ertrag für mein kleines heterogenes (PPC, Intel) Heimnetzwerk zu
+ gross.
+\end_layout
+
+\begin_layout Itemize
+Debian-Konfiguration änderte sich im Laufe der Jahre.
+ Defaults wurden besser, meine alten Rezepte funktionierten nicht mehr und
+ machten gewisse Teile unbrauchbar.
+ Dieses Problem kann nur angegangen werden, indem man die Änderungen jeweils
+ nach einem Upgrade des betroffenen Pakets kritisch hinterfrägt.
+\end_layout
+
+\begin_layout Itemize
+Zentrales Logging der Änderungen/Abläufe wurde nicht richtig implementiert.
+\end_layout
+
+\begin_layout Itemize
+Für gewisse Probleme wäre die Benutzung einer 
+\begin_inset Quotes eld
+\end_inset
+
+echten
+\begin_inset Quotes erd
+\end_inset
+
+ Script-Sprache praktisch.
+\end_layout
+
+\begin_layout Itemize
+Nicht Idem/Potent.
+ Häufig mit cfengine <timestamp> gearbeitet, damit Dateien nicht dauernd
+ neu erstellt wurden.
+\end_layout
+
+\begin_layout Subsubsection
+Auslöser
+\end_layout
+
+\begin_layout Standard
+2010 habe ich für Elexis-Server und andere mit Hilfe von simple-cdd kundenspezif
+ische Installation von GNU/Debian-Linux durchgeführt, welche von einigen
+ wenigen Text-Dateien getrieben wurden (den profiles von simple-cdd).
+ Aufwand/Ertrag waren gut, sobald man akzeptiert, dass die Testing-Distribution
+ von Debian hin und wieder zu Abbrüchen führt.
+\end_layout
+
+\begin_layout Standard
+Bei Installation von cosre (Mai 2010) und erstem Server (bbuechel, November
+ 2010) festgestellt, dass diese Installation machbar sind, wegen HW-Problemen
+ (z.B.
+ zusätzliche HD-Disk in grub-inkompatibler Reihenfolge) scheitern können.
+ Nachher kommen im Laufe der Zeit neue Anforderungen auf, welche keine Neu-Insta
+llation erfordern sollten.
+ Beispiele dafür sind neue Applikationen (z.B.
+ ein Praxis-Wiki, neue Benutzer, Samba).
+\end_layout
+
+\begin_layout Standard
+Deshalb nach einem Tool gesucht, dass automatisch die Konfiguration eines
+ Server à jour halten kann.
+ Nach Alternativen zu cfengine gesucht und Puppet gefunden.
+\end_layout
+
+\begin_layout Subsection
+Einarbeitung
+\end_layout
+
+\begin_layout Standard
+Doku unter 
+\begin_inset CommandInset href
+LatexCommand href
+name "http://docs.puppetlabs.com/"
+target "http://docs.puppetlabs.com/"
+
+\end_inset
+
+ quer durchgelesen, um Konzepte zu verstehen.
+\end_layout
+
+\begin_layout Standard
+Für Debian gibt es unter 
+\begin_inset CommandInset href
+LatexCommand href
+name "http://www.debian-administration.org/articles/526"
+target "http://www.debian-administration.org/articles/526"
+
+\end_inset
+
+ eine gute Anleitung, wie man rasch ein kleines Netzwerk mit Puppet startklar
+ macht.
+ Falls man Lenny auf dem Server installiert hat, wird puppet am besten via
+ 
+\begin_inset CommandInset href
+LatexCommand href
+name "debian-backports"
+target "http://wiki.debian.org/Backports"
+
+\end_inset
+
+ installiert.
+\end_layout
+
+\begin_layout Standard
+Dabei suchte ich v.a.
+ auch nach Vorlagen wie gesamte Sites gemanaged werden können und fand sie
+ z.B.
+ in folgenden Orten
+\end_layout
+
+\begin_layout Itemize
+\begin_inset CommandInset href
+LatexCommand href
+name "http://projects.puppetlabs.com/projects/puppet/wiki/Complete_Configuration"
+target "http://projects.puppetlabs.com/projects/puppet/wiki/Complete_Configuration"
+
+\end_inset
+
+.
+ Web-Server der alles veröffentlicht, inkl.
+ Beispiele für sich selber und seine Eltern.
+ (Unter /opt/src/davids-manifests runter geladen).
+\end_layout
+
+\begin_layout Itemize
+Die ETH-Zürich scheint es zu gebrauchen: 
+\begin_inset CommandInset href
+LatexCommand href
+name "http://git.sans.ethz.ch/"
+target "http://git.sans.ethz.ch/"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Diverse Module/Applikationen findet man unter 
+\begin_inset CommandInset href
+LatexCommand href
+name "http://forge.puppetlabs.com/"
+target "http://forge.puppetlabs.com/"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Dieses Dokument begonnen.
+\end_layout
+
+\begin_layout Standard
+http://www.debian-administration.org/articles/526
+\end_layout
+
+\begin_layout Standard
+Dort beklagt sich auch jemand, dass puppet viel zuviel Memory braucht (400
+ MB)
+\end_layout
+
+\begin_layout Standard
+http://projects.puppetlabs.com/projects/1/wiki/Using_Thin_Nginx
+\end_layout
+
+\begin_layout Standard
+Um einzelne Snippets zu testen, gebrauche man 
+\begin_inset Quotes eld
+\end_inset
+
+puppet -v something.pp
+\begin_inset Quotes eld
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+future improvements
+\end_layout
+
+\begin_layout Itemize
+Beginnen mit autofs-Konfiguration (das kann ich nämlich gebrauchen und ist
+ etwas trickreich).
+ 4hudson (export/uses)
+\end_layout
+
+\begin_layout Itemize
+Checkout von git-repository
+\end_layout
+
+\begin_layout Itemize
+etckeeper einbauen
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Danach Benutzer-Konfiguration mit folgenden Anforderungen:
+\end_layout
+
+\begin_layout Itemize
+Benutzer/Passwort-Kombination von nicht public lesbaren Ort holen.
+ Oder gleiches Default-Passwort für alle Benutzer.
+ Dazu Extlookup benutzen (Siehe Release Notes 2.6.1)
+\end_layout
+
+\begin_layout Itemize
+Yubico-Key verwenden (Optional)
+\end_layout
+
+\begin_layout Itemize
+Beim Aufsetzen Passwort muss sofort geändert werden.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Puppet-Master verwenden (ngiger.dyndns.org zu Beginn, für Demo-Zwecke github)
+\end_layout
+
+\begin_layout Itemize
+Report generieren und ablegen.
+\end_layout
+
+\begin_layout Itemize
+Wie die SSH-Zertifikate von Server, Client, Benutzer, Firewall (OpenVPN)
+ sicher verwalten.
+ Integration in simple-cdd (z.B.
+ Puppet, OpenSSH-Server, OpenVPN installieren und Zertifikate vom Puppet-Master
+ holen oder auf CD mitbringen).
+ OpenVPN immer/nur auf Verlangen verbunden zu PuppetMaster.
+\end_layout
+
+\begin_layout Itemize
+DHCP oder fixe IP/hostname/domainname/gateway verwenden (simple-cdd)
+\end_layout
+
+\begin_layout Itemize
+Postgres/MySql Hot-Backup verwenden.
+\end_layout
+
+\begin_layout Itemize
+Auf Home-PCs wie gs,mm,transtec diejenigen Pakete/Sachen mit Puppet verwalten,
+ welche nicht mit den Defaults von Debian abgedeckt werden.
+ Wichtige Pakete (etckeeper, git, cups, autofs, rsync) per Default installieren.
+\end_layout
+
+\begin_layout Itemize
+
+\lang french
+http://rdiff-backup.nongnu.org/ with puppet-module!
+\end_layout
+
+\begin_layout Itemize
+Bridge für virtuelle Maschinen offerieren.
+ http://www.planetdevops.net/?tag=puppet,prefetch.net/presentations/KVMPresentation.
+pdf, http://www.linuxer.onlinehome.de/apps/kvm.htm,
+\begin_inset Newline newline
+\end_inset
+
+https://help.ubuntu.com/community/KVM/Networking#Creating%20a%20network%20bridge%2
+0on%20the%20host
+\end_layout
+
+\begin_layout Itemize
+http://wiki.debian.org/QEMU??
+\end_layout
+
+\begin_layout Itemize
+/etc/network/interfaces
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+auto lo
+\end_layout
+
+\begin_layout Plain Layout
+
+iface lo inet loopback
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+auto eth0
+\end_layout
+
+\begin_layout Plain Layout
+
+iface eth0 inet manual
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+auto br0
+\end_layout
+
+\begin_layout Plain Layout
+
+iface br0 inet dhcp
+\end_layout
+
+\begin_layout Plain Layout
+
+        bridge_ports eth0
+\end_layout
+
+\begin_layout Plain Layout
+
+        bridge_stp off
+\end_layout
+
+\begin_layout Plain Layout
+
+        bridge_fd 0
+\end_layout
+
+\begin_layout Plain Layout
+
+        bridge_maxwait 0
+\end_layout
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+Dazu noch kvm-qemu beim Starten folgende mitgeben:
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+-net nic,vlan=0 -net tap,vlan=0,ifname=tap0
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+http://bitfieldconsulting.com/puppet-and-mysql-create-databases-and-users
+\end_layout
+
+\end_body
+\end_document
