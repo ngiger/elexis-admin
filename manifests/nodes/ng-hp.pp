@@ -1,5 +1,4 @@
-ng-hp	{
-	include sudo::install
+node ng-hp	{include sudo::install
 	include sudo::sudoers
 }
 

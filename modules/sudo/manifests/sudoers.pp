@@ -7,7 +7,7 @@ class sudo::sudoers {
 						     }
 
 	    exec { "check-sudoers":
-			    command => "/usr/sbin/visudo -cf /tmp/sudoers && cp
+			    command => "/usr/sbin/visudo -qcf /tmp/sudoers && cp
 					/tmp/sudoers /etc/sudoers",
 					    refreshonly => true,
 						  }

@@ -72,9 +72,16 @@ def runSimpleCdd(name)
     ausgabe.close
     FileUtils.chmod(0755, d) if x == 'postinst'
   }
+
+  keyboard = case cnf.locale
+    when "fr_CH" then "fr_CH"
+    when "de_CH" then "sg"
+  else "C"
+  end
+
   # ENV['cd_img']="myname-#{cnf.release}.iso"
   cmd = "wget_debian_mirror=#{APPROX_SERVER} time build-simple-cdd --dist #{cnf.release} \
---keyboard #{cnf.keyboard} --locale  #{cnf.locale} \
+--keyboard #{keyboard} --locale  #{cnf.locale} \
 --conf profiles/#{name}.conf  \
 --profiles #{name} \
 --debian-mirror #{APPROX_SERVER} \

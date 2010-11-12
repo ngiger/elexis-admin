@@ -11,7 +11,6 @@ AdminPuppet="git://github.com/ngiger/elexis-admin.git"
 
 cnf.description='Demo-Server using DHCP'
 cnf.release='lenny'
-cnf.keyboard='sf'
 cnf.locale='fr_ch'
 cnf.conf=<<EOF
 mirror_components="main contrib non-free"
@@ -64,19 +63,22 @@ echo '#{InitialUser} ALL=(ALL) ALL' >> /etc/sudoers
 # SMART configuration
 echo 'start_smartd=yes'>>/etc/default/smartmontools
 echo 'DEVICESCAN -a -o on -S on -s (S/../.././02|L/../../6/03) -m #{AdminEmail}' >/etc/smartd.conf
+# we want to checkout into /etc/elexis-admin to clearly show that we want to run standalone
 cd /etc 
 rm -rf puppet
-mkdir puppet
-git clone #{AdminPuppet} /etc/puppet
-git commit -m 'commit after cloning puppet'
+git clone #{AdminPuppet}
+# comment out the next lie if you don't want to a daily update 
+echo '/usr/bin/puppet /etc/#{File.basename(AdminPuppet,'.git')}/manifest/site.pp' >/etc/cron.daily/run_puppet
 
+git commit -m 'commit after cloning puppet' -a
 EOF
 
 cnf.preseed=<<EOF
-d-i netcfg/get_hostname    string  elexis-admin
+d-i netcfg/get_hostname string  elexis-admin
+d-i netcfg/get_domain   string  elexis.arztpraxis.demo
 apt-mirror-setup	apt-setup/use_mirror    boolean false
 apt-mirror-setup	apt-setup/no_mirror	boolean	true
-# choose-mirror-bin	mirror/http/hostname	string	ftp.ch.debian.org
+choose-mirror-bin	mirror/http/hostname	string	ftp.ch.debian.org
 
 user-setup-udeb	passwd/username	string	#{InitialUser.upcase}
 user-setup-udeb	passwd/user-fullname	string	#{InitialUser}

@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
-require 'demo-dhcp'
-cnf_fix = SimpleCddConf::get('demo-dhcp').copyTo(File.basename(__FILE__, '.rb'))
+require 'demo_dhcp'
+cnf_fix = SimpleCddConf::get('demo_dhcp').copyTo(File.basename(__FILE__, '.rb'))
 
 cnf_fix.preseed+=<<EOF
 d-i netcfg/disable_dhcp boolean true
