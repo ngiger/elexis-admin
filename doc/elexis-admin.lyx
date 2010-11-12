@@ -518,6 +518,20 @@ Auf Home-PCs wie gs,mm,transtec diejenigen Pakete/Sachen mit Puppet verwalten,
 \end_layout
 
 \begin_layout Itemize
+Schlussendlich bridge für Debian erstellt (am 11.11.2010): 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+a) aptitude remove network-manager
+\end_layout
+
+\begin_layout Itemize
+b) followed http://wiki.debian.org/QEMU#Hostandguestsonsamenetwork
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
 
 \lang french
 http://rdiff-backup.nongnu.org/ with puppet-module!
@@ -532,6 +546,15 @@ pdf, http://www.linuxer.onlinehome.de/apps/kvm.htm,
 
 https://help.ubuntu.com/community/KVM/Networking#Creating%20a%20network%20bridge%2
 0on%20the%20host
+\end_layout
+
+\begin_layout Itemize
+man bridge-utils-interfaces
+\end_layout
+
+\begin_layout Itemize
+http://wiki.libvirt.org/page/Networking#Bridged_networking_.28aka_.22shared_physical
+_device.22.29 (muss man für Debian nicht /etc/init/network-manager.conf ändern?)
 \end_layout
 
 \begin_layout Itemize
@@ -604,6 +627,59 @@ iface br0 inet dhcp
 \begin_layout Plain Layout
 
         bridge_maxwait 0
+\end_layout
+
+\begin_layout Plain Layout
+
+gemäss man
+\end_layout
+
+\begin_layout Plain Layout
+
+ auto br0
+\end_layout
+
+\begin_layout Plain Layout
+
+       iface br0 inet static
+\end_layout
+
+\begin_layout Plain Layout
+
+           address 192.168.1.2
+\end_layout
+
+\begin_layout Plain Layout
+
+           network 192.168.1.0
+\end_layout
+
+\begin_layout Plain Layout
+
+           netmask 255.255.255.0
+\end_layout
+
+\begin_layout Plain Layout
+
+           broadcast 192.168.1.255
+\end_layout
+
+\begin_layout Plain Layout
+
+           gateway 192.168.1.1
+\end_layout
+
+\begin_layout Plain Layout
+
+           bridge_ports all
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
 \end_layout
 
 \end_inset

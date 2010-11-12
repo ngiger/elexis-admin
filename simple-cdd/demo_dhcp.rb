@@ -1,6 +1,14 @@
 #!/usr/bin/ruby
 
+
 cnf = SimpleCddConf.new(File.basename(__FILE__, '.rb'))
+
+# In this a few things which you probably would like to adapt for your problem
+InitialPassword="1024" # For InitialUser and root
+InitialUser="elexis"
+AdminEmail="niklaus.giger@swissonline.ch"
+AdminPuppet="git://github.com/ngiger/elexis-admin.git"
+
 cnf.description='Demo-Server using DHCP'
 cnf.release='lenny'
 cnf.keyboard='sf'
@@ -8,8 +16,8 @@ cnf.locale='fr_ch'
 cnf.conf=<<EOF
 mirror_components="main contrib non-free"
 security-mirror="http://security.debian.org/"
-exportall_extras="custom-file,profiles/custom-file"
 EOF
+
 
 if defined?(ARCH) and ARCH=='x86'
   cnf.conf+="kernel-packages=\"linux-image-2.6-686-bigmem\"\n"
@@ -30,6 +38,9 @@ parted
 dlocate
 locate
 findutils
+kbd
+pciutils
+usbutils
 EOF
 if cnf.release=='lenny'
 cnf.packages+="git-core\n"
@@ -46,31 +57,37 @@ cd /etc
 etckeeper init
 echo "*~" >.gitignore
 git add .gitignore
-git commit -m "Initial commit while still in installation"
+git commit -m "Initial commit from simple-cdd postinst"
 
 update-alternatives --set editor /usr/bin/vim.basic
-echo 'elexis ALL=(ALL) ALL' >> /etc/sudoers
+echo '#{InitialUser} ALL=(ALL) ALL' >> /etc/sudoers
 # SMART configuration
 echo 'start_smartd=yes'>>/etc/default/smartmontools
-echo 'DEVICESCAN -a -o on -S on -s (S/../.././02|L/../../6/03) -m niklaus.giger@swissonline.ch' >/etc/smartd.conf
+echo 'DEVICESCAN -a -o on -S on -s (S/../.././02|L/../../6/03) -m #{AdminEmail}' >/etc/smartd.conf
+cd /etc 
+rm -rf puppet
+mkdir puppet
+git clone #{AdminPuppet} /etc/puppet
+git commit -m 'commit after cloning puppet'
 
 EOF
 
 cnf.preseed=<<EOF
+d-i netcfg/get_hostname    string  elexis-admin
 apt-mirror-setup	apt-setup/use_mirror    boolean false
 apt-mirror-setup	apt-setup/no_mirror	boolean	true
 # choose-mirror-bin	mirror/http/hostname	string	ftp.ch.debian.org
 
-user-setup-udeb	passwd/username	string	Elexis
-user-setup-udeb	passwd/user-fullname	string	elexis
+user-setup-udeb	passwd/username	string	#{InitialUser.upcase}
+user-setup-udeb	passwd/user-fullname	string	#{InitialUser}
 d-i   popularity-contest/participate  boolean false
 
-passwd passwd/root-password password 1024
-passwd passwd/root-password-again password 1024
-d-i passwd/user-fullname string elexis
-d-i passwd/username string elexis
-passwd passwd/user-password password 1024
-passwd passwd/user-password-again password 1024
+passwd passwd/root-password password #{InitialPassword}
+passwd passwd/root-password-again password #{InitialPassword}
+d-i passwd/user-fullname string #{InitialUser}
+d-i passwd/username string #{InitialUser}
+passwd passwd/user-password password #{InitialPassword}
+passwd passwd/user-password-again password #{InitialPassword}
 user-setup-udeb passwd/user-default-groups string audio cdrom floppy video plugdev netdev powerdev
 
 d-i partman-auto/expert_recipe string \
@@ -111,4 +128,3 @@ mountpoint{ /opt } \
 .
 
 EOF
-

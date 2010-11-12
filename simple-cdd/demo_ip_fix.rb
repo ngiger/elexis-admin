@@ -10,8 +10,8 @@ d-i netcfg/dhcp_options select Configure network manually
 
 # Static network configuration.
 d-i netcfg/get_nameservers string 172.25.1.1
-d-i netcfg/get_ipaddress string 172.25.1.242
-d-i netcfg/get_netmask string 255.255.255.0
-d-i netcfg/get_gateway string 172.25.1.1
-d-i netcfg/confirm_static boolean true
+d-i netcfg/get_ipaddress   string 172.25.1.242
+d-i netcfg/get_netmask     string 255.255.255.0
+d-i netcfg/get_gateway     string 172.25.1.1
+d-i netcfg/confirm_static  boolean true
 EOF
