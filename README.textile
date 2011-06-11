@@ -1,0 +1,28 @@
+This is a playground where Niklaus would like to set-up a 
+very easy to install elexis environment for medical practitioner.
+
+h2. Typical setup
+
+* OC (Elexis-OperationCenter) is responsible for infrastructure & setup
+* Firewall is either managed by the practitioner or the OC (pcengine.ch/ipfire)
+* Server (GNU/Debian-Linux) based managed by th OC. Somewhere in the medical cabinet
+**  HW: Any x86 server should do the jobs, may be virtualized, e.g. Archivista.ch
+**  SW: Database-Server
+**  Optional: x2goserver based on KDE/Gnome
+**  Optional: Wiki, whatever the practitioner is wishing and willing to pay
+* Backup: eSata/NAS (at least 2 pieces regulary swapped in a safe place, e.g. a safe in a Swiss bank
+* Optional: Linux/MacOSX/Win?? PC with full elexis installation
+* Optional: ThinClient (inside cabinet or via internet) using x2go
+
+h2. Tools used are (among a lot of others):
+
+* simple-cdd (Custom Debian Distribution)
+* puppet 
+
+
+h2. New to puppet?
+
+Then have a look at "Getting Started":doc/getting_started.htm
+* http://bitfieldconsulting.com/puppet-tutorial
+* http://bitfieldconsulting.com/scaling-puppet-with-distributed-version-control
+
