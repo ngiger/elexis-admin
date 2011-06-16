@@ -40,6 +40,8 @@ dlocate
 locate
 findutils
 kbd
+unzip
+
 lsb-release
 # damit debconf-get-selections zur Verfuegung steht
 debconf-utils

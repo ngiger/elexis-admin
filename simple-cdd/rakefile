@@ -5,13 +5,6 @@ OptRoot='/opt'
 ARCH="i386" # i386,amd64,ppc,ppc64 or whatever Debian supports
 ENV['ARCH']=ARCH
 
-# You will probably want to fetch the configuration from your server
-# This one is in any case private and of no use for you!
-COSRE = { :server   => 'cosre.dyndns.org',
-          :username => 'niklaus',
-	  :path     => '/home/niklaus/.bashrc',
-}
-
 # net/scp does not work
 # throughs me a `could not settle on language_client algorithm' exception
 # Also puppet had problems installing net-scp gem (I am running jruby)
@@ -33,12 +26,13 @@ class SimpleCddConf
   @@allConfs = Hash.new
   attr_reader :name
   Fields = ['conf','description', 'locale','keyboard','release',
-            'packages','preseed','postinst'].each { 
+            'packages','preseed','postinst','customFiles'].each { 
 	      |x| eval "attr_accessor :#{x}" 
 	    }
   def initialize(name)
     @name=name
     @@allConfs[name]= self
+    @customFiles=[]
     return self
   end  
 
@@ -55,14 +49,18 @@ class SimpleCddConf
 end
 
 
-def runSimpleCdd(name)
+def runSimpleCdd(name, opts=nil)
   FileUtils.rm_rf('profiles')
+  FileUtils.makedirs('profiles')
+  $opts = opts
   require "#{Dir.pwd}/#{name}" # reads in name.rb
   cnf = SimpleCddConf.get(name)
-  FileUtils.makedirs('profiles')
   cnf.conf+="profiles=\"#{name}\"\n"
   cnf.conf+="debian_mirror=\"#{APPROX_SERVER}\"\n"
   cnf.conf+="wget_debian_mirror=\"#{APPROX_SERVER}\"\n"
+  cnf.customFiles.each{ |x|
+    cnf.conf+="all_extras=\"$all_extras \$simple_cdd_dir/profiles/#{x}\"\n"
+                      }
   cnf.conf+="debian-mirror=\"#{APPROX_SERVER}\"\n"
   cnf.conf+="wget-debian-mirror=\"#{APPROX_SERVER}\"\n"
   ['conf','description','packages','preseed','postinst'].each { |x|
@@ -92,24 +90,25 @@ def runSimpleCdd(name)
   puts "kvm -hda #{name}.qcow2 -cdrom debian-testing-i386-CD-1.iso -boot d"
 end
 
-def add_iso_target(name, opts = {})
+def add_iso_target(name)
   desc "Produces ISO #{name}"
   task name => [ 'simple_cdd_env'] do
-    datei = name+'.rb'
+    datei = "#{name}.rb"
     if File.exists?(datei) then
       p "origin #{datei} exists locally"
     else
-      p "download #{datei} #{opts.inspect}"
-      # download a file from a remote server
-      cmd =  "scp #{opts[:username]}@#{opts[:server]}:#{opts[:path]} #{datei}"
-      sh cmd
+      p "missing #{datei}!!"
+      exit 2
     end
     runSimpleCdd(name)
   end
 end
 
-add_iso_target('demo_dhcp',   COSRE)
-add_iso_target('demo_ip_fix', COSRE)
-
-
+# add_iso_target('demo_dhcp')
+# add_iso_target('demo_ip_fix')
+# add_iso_target('puppet_vm')
+desc "puppet_vm[\'client\'] Create ISO with puppet and ../client/client.zip, ../client/puppet/puppet.zip"
+task :puppet_vm, :client do |t, args|
+  runSimpleCdd('puppet_vm', args.client)
+end
 

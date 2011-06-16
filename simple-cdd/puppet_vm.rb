@@ -4,17 +4,28 @@ InitialUser="elexis"
 AdminEmail="niklaus.giger@swissonline.ch"              
 AdminPuppet="git://github.com/ngiger/elexis-admin.git" 
 PuppetClient="git@github.com:ngiger/giger.git"
-
+# oder PuppetClient="ssh://schoebu@ngiger.dyndns.org/home/schoebu/schoebu.git"
+# git clone give Permission denied (publickey).
 ARCH='i386' if !defined?(ARCH)
-
 load "common/elexis_admin.rb"
 load "common/hd_layout_vm.rb"
-
 cnf_vm = SimpleCddConf.new(File.basename(__FILE__, '.rb'))
 cnf_vm.release='squeeze'
 cnf_vm.locale='de_CH'
 cnf_vm.description = "Debian #{cnf_vm.release} Server (no X, #{cnf_vm.locale}, puppet, openvpn)"
-
+require 'fileutils'
+FilesToAdd = []
+["#{$opts}/#{File.basename($opts)}.zip", "#{$opts}/puppet/puppet.zip"]. each{
+  |x|
+    if !File.exists?(x) 
+      puts "Could not find needed file #{x}"
+      exit 3
+    else
+      puts "Will add #{x} (#{File.size(x)} bytes) to the iso"
+      FileUtils.cp(x, File.expand_path(Dir.pwd)+"/profiles/"+ File.basename(x), :verbose=>true)
+      cnf_vm.customFiles << File.basename(x)
+    end
+}
 cnf_vm.conf=<<EOF
 mirror_components="main contrib non-free"
 
@@ -33,7 +44,6 @@ cnf_vm.preseed=<<EOF
 #{Layout_HD_VM_Server}
 EOF
 
-puts cnf_vm.postinst.inspect
 cnf_vm.postinst = '' if !cnf_vm.postinst
 cnf_vm.postinst+=<<EOF
 #!/bin/sh
@@ -61,12 +71,18 @@ echo "do_bootfloppy = no" >>  /etc/kernel-img.conf
 echo "do_initrd = yes" >>  /etc/kernel-img.conf
 echo "link_in_boot = no" >>  /etc/kernel-img.conf
 
-cmd="git clone #{PuppetClient} /etc/puppet"
-logger "ELEXIS_ADMIN: running $cmd"
-$cmd
-
 # Add key for our git host
 echo "|1|ptiz5VZG3I7H1BgruPLSBO+L6fg=|HrysmQGjotRohSOp59+zo0rV1jU= ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==" > /home/${InitialUser}/.ssh/known_hosts
+
+# we could pack the /etc/puppet into the iso image and untar it here
+# To copy an arbitrary file into the /simple-cdd directory on the CD, add the following to your .conf file:
+# all_extras="$all_extras $simple_cdd_dir/profiles/custom-file"rm -rf /etc/puppet
+cmd="git clone #{PuppetClient} /etc/puppet"
+logger "ELEXIS_ADMIN: NOT !!!! running $cmd"
+# 
+# $cmd
+# after first startup either git clone (vm-1) oder puppet agent --server elexis-vm-1
+
 echo "alias ll='ls -al'" >> /home/${InitialUser}/.bash_aliases
 echo "alias ll='ls -al'" >> /etc/skel/.bash_aliases
 update-alternatives --set editor /usr/bin/vim.basic
