@@ -1,32 +1,18 @@
 class elexis-db {
-  file{"/tmp/foo.conf":
-    source => [
-      "puppet:///foo/foo.conf",
-    ],
-    owner => elexis, group => elexis, mode => 0666;
-  }
-# gemäss beispiel http://docs.puppetlabs.com/guides/file_serving.html
-  file{"/tmp/testfile.txt":
-    source => [
-      "puppet:///modules/test_module/testfile.txt",
-    ],
-    owner => elexis, group => elexis, mode => 0666;
-  }
-  file{"/tmp/pg_hba.conf":
-    source => [
-      "puppet:///modules/postgres/pg_hba.conf",
-      "puppet:///modules/test_module/testfile.txt",
-    ],
-    owner => elexis, group => elexis, mode => 0666;
-  }
 
-# exec {"/usr/local/bin/ainsl /etc/ssh/sshd_config 'Port 8245'": }
+# schoebu hatt noch folgende Datei:
+# /etc/postgresql/postgresql.env
+# [ -r /etc/postgresql/postmaster.conf ] &&
+#         . /etc/postgresql/postmaster.conf
+# PGDATA=${POSTGRES_DATA:-/var/lib/postgres/data}
+# PGLIB=/usr/lib/postgresql/lib
+# PGACCESS_HOME=/usr/lib/postgresql/share/pgaccess
+# PGHOST=
+# export PGLIB PGDATA PGACCESS_HOME PGHOST
 
-# augeas does not work at the moment!!!
-
-
+# TODO: - PGDATA fehlt beim Starten? (Von Hand mal gemäss Debian Drehbuch eine DB einrichten?
+#        -pg_hba.conf via augeas oder @ directive um archive und hosts erweitern 
+#        - Welche Benutzername/Passwoerter wurden gebraucht?
     include postgres::server
-      postgres::database { "elexis-psql": ensure => present,
-      owner => 'niklaus'
-    }
+#      postgres::database { "elexis-psql": ensure => present, owner => 'niklaus' }
 }

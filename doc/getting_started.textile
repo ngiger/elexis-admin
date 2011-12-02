@@ -1,352 +1,97 @@
-#LyX 1.6.7 created this file. For more info see http://www.lyx.org/
-\lyxformat 345
-\begin_document
-\begin_header
-\textclass article
-\use_default_options true
-\language ngerman
-\inputencoding auto
-\font_roman default
-\font_sans default
-\font_typewriter default
-\font_default_family default
-\font_sc false
-\font_osf false
-\font_sf_scale 100
-\font_tt_scale 100
-
-\graphics default
-\paperfontsize default
-\use_hyperref false
-\papersize default
-\use_geometry false
-\use_amsmath 1
-\use_esint 1
-\cite_engine basic
-\use_bibtopic false
-\paperorientation portrait
-\secnumdepth 3
-\tocdepth 3
-\paragraph_separation indent
-\defskip medskip
-\quotes_language english
-\papercolumns 1
-\papersides 1
-\paperpagestyle default
-\tracking_changes false
-\output_changes false
-\author "" 
-\author "" 
-\end_header
-
-\begin_body
-
-\begin_layout Title
 Puppet
-\end_layout
 
-\begin_layout Abstract
-Wie Niklaus lernte, Puppet einzusetzen.
- Ein Erfahrungsbericht.
-\end_layout
+Abstract Wie Niklaus lernte, Puppet einzusetzen. Ein Erfahrungsbericht.
 
-\begin_layout Address
 Niklaus Giger, Wieshoschet 6, CH-8753 Mollis
-\end_layout
 
-\begin_layout Section
-Ziele
-\end_layout
+1 Ziele
 
-\begin_layout Standard
-Aufsetzen/Dokumentation so zu gestalten, dass andere Medelexis OC interessiert
- sind, mitzuarbeiten.
- Dazu unter GitHub das Projekt 
-\begin_inset CommandInset href
-LatexCommand href
-name "elexis-admin"
-target "https://github.com/ngiger/elexis-admin"
+Aufsetzen/Dokumentation so zu gestalten, dass andere Medelexis OC interessiert sind, mitzuarbeiten. Dazu unter GitHub das Projekt [https://github.com/ngiger/elexis-admin||elexis-admin]eröffnet, wo u.a. auch der aktuelle Stand dieser Datei zu finden ist.
 
-\end_inset
-
-eröffnet, wo u.a.
- auch der aktuelle Stand dieser Datei zu finden ist.
-\end_layout
-
-\begin_layout Standard
 Merkblatt, wie/wo gewisse Sachen von Puppet dokumentiert sind.
-\end_layout
 
-\begin_layout Standard
 Meine Ziele/Anforderungen an Puppet dokumentieren.
-\end_layout
 
-\begin_layout Standard
 Fortschritt/Entscheidungen dokumentieren.
-\end_layout
 
-\begin_layout Standard
 Lyx -X HTML
-\end_layout
 
-\begin_layout Section
-Einstieg
-\end_layout
+2 Einstieg
 
-\begin_layout Subsection
-Warum?
-\end_layout
+2.1 Warum?
 
-\begin_layout Standard
-Ich habe ja vor Jahren es mit cfengine versucht und bin davon abgekommen.
- Warum?
-\end_layout
+Ich habe ja vor Jahren es mit cfengine versucht und bin davon abgekommen. Warum?
 
-\begin_layout Itemize
-Aufwand/Ertrag für mein kleines heterogenes (PPC, Intel) Heimnetzwerk zu
- gross.
-\end_layout
+• Aufwand/Ertrag für mein kleines heterogenes (PPC, Intel) Heimnetzwerk zu gross.
 
-\begin_layout Itemize
-Debian-Konfiguration änderte sich im Laufe der Jahre.
- Defaults wurden besser, meine alten Rezepte funktionierten nicht mehr und
- machten gewisse Teile unbrauchbar.
- Dieses Problem kann nur angegangen werden, indem man die Änderungen jeweils
- nach einem Upgrade des betroffenen Pakets kritisch hinterfrägt.
-\end_layout
+• Debian-Konfiguration änderte sich im Laufe der Jahre. Defaults wurden besser, meine alten Rezepte funktionierten nicht mehr und machten gewisse Teile unbrauchbar. Dieses Problem kann nur angegangen werden, indem man die Änderungen jeweils nach einem Upgrade des betroffenen Pakets kritisch hinterfrägt.
 
-\begin_layout Itemize
-Zentrales Logging der Änderungen/Abläufe wurde nicht richtig implementiert.
-\end_layout
+• Zentrales Logging der Änderungen/Abläufe wurde nicht richtig implementiert.
 
-\begin_layout Itemize
-Für gewisse Probleme wäre die Benutzung einer 
-\begin_inset Quotes eld
-\end_inset
+• Für gewisse Probleme wäre die Benutzung einer “echten” Script-Sprache praktisch.
 
-echten
-\begin_inset Quotes erd
-\end_inset
+• Nicht Idem/Potent. Häufig mit cfengine <timestamp> gearbeitet, damit Dateien nicht dauernd neu erstellt wurden.
 
- Script-Sprache praktisch.
-\end_layout
+2.1.1 Auslöser
 
-\begin_layout Itemize
-Nicht Idem/Potent.
- Häufig mit cfengine <timestamp> gearbeitet, damit Dateien nicht dauernd
- neu erstellt wurden.
-\end_layout
+2010 habe ich für Elexis-Server und andere mit Hilfe von simple-cdd kundenspezifische Installation von GNU/Debian-Linux durchgeführt, welche von einigen wenigen Text-Dateien getrieben wurden (den profiles von simple-cdd). Aufwand/Ertrag waren gut, sobald man akzeptiert, dass die Testing-Distribution von Debian hin und wieder zu Abbrüchen führt.
 
-\begin_layout Subsubsection
-Auslöser
-\end_layout
+Bei Installation von cosre (Mai 2010) und erstem Server (bbuechel, November 2010) festgestellt, dass diese Installation machbar sind, wegen HW-Problemen (z.B. zusätzliche HD-Disk in grub-inkompatibler Reihenfolge) scheitern können. Nachher kommen im Laufe der Zeit neue Anforderungen auf, welche keine Neu-Installation erfordern sollten. Beispiele dafür sind neue Applikationen (z.B. ein Praxis-Wiki, neue Benutzer, Samba).
 
-\begin_layout Standard
-2010 habe ich für Elexis-Server und andere mit Hilfe von simple-cdd kundenspezif
-ische Installation von GNU/Debian-Linux durchgeführt, welche von einigen
- wenigen Text-Dateien getrieben wurden (den profiles von simple-cdd).
- Aufwand/Ertrag waren gut, sobald man akzeptiert, dass die Testing-Distribution
- von Debian hin und wieder zu Abbrüchen führt.
-\end_layout
+Deshalb nach einem Tool gesucht, dass automatisch die Konfiguration eines Server à jour halten kann. Nach Alternativen zu cfengine gesucht und Puppet gefunden.
 
-\begin_layout Standard
-Bei Installation von cosre (Mai 2010) und erstem Server (bbuechel, November
- 2010) festgestellt, dass diese Installation machbar sind, wegen HW-Problemen
- (z.B.
- zusätzliche HD-Disk in grub-inkompatibler Reihenfolge) scheitern können.
- Nachher kommen im Laufe der Zeit neue Anforderungen auf, welche keine Neu-Insta
-llation erfordern sollten.
- Beispiele dafür sind neue Applikationen (z.B.
- ein Praxis-Wiki, neue Benutzer, Samba).
-\end_layout
+2.2 Einarbeitung
 
-\begin_layout Standard
-Deshalb nach einem Tool gesucht, dass automatisch die Konfiguration eines
- Server à jour halten kann.
- Nach Alternativen zu cfengine gesucht und Puppet gefunden.
-\end_layout
+Doku unter [http://docs.puppetlabs.com/||http://docs.puppetlabs.com/] quer durchgelesen, um Konzepte zu verstehen.
 
-\begin_layout Subsection
-Einarbeitung
-\end_layout
+Für Debian gibt es unter [http://www.debian-administration.org/articles/526||http://www.debian-administration.org/articles/526] eine gute Anleitung, wie man rasch ein kleines Netzwerk mit Puppet startklar macht. Falls man Lenny auf dem Server installiert hat, wird puppet am besten via [http://wiki.debian.org/Backports||debian-backports] installiert.
 
-\begin_layout Standard
-Doku unter 
-\begin_inset CommandInset href
-LatexCommand href
-name "http://docs.puppetlabs.com/"
-target "http://docs.puppetlabs.com/"
+Dabei suchte ich v.a. auch nach Vorlagen wie gesamte Sites gemanaged werden können und fand sie z.B. in folgenden Orten
 
-\end_inset
+• [http://projects.puppetlabs.com/projects/puppet/wiki/Complete_Configuration||http://projects.puppetlabs.com/projects/puppet/wiki/Complete_Configuration]. Web-Server der alles veröffentlicht, inkl. Beispiele für sich selber und seine Eltern.
 
- quer durchgelesen, um Konzepte zu verstehen.
-\end_layout
+• Die ETH-Zürich scheint es zu gebrauchen: [http://git.sans.ethz.ch/||http://git.sans.ethz.ch/]
 
-\begin_layout Standard
-Für Debian gibt es unter 
-\begin_inset CommandInset href
-LatexCommand href
-name "http://www.debian-administration.org/articles/526"
-target "http://www.debian-administration.org/articles/526"
+• Diverse Module/Applikationen findet man unter [http://forge.puppetlabs.com/||http://forge.puppetlabs.com/]
 
-\end_inset
-
- eine gute Anleitung, wie man rasch ein kleines Netzwerk mit Puppet startklar
- macht.
- Falls man Lenny auf dem Server installiert hat, wird puppet am besten via
- 
-\begin_inset CommandInset href
-LatexCommand href
-name "debian-backports"
-target "http://wiki.debian.org/Backports"
-
-\end_inset
-
- installiert.
-\end_layout
-
-\begin_layout Standard
-Dabei suchte ich v.a.
- auch nach Vorlagen wie gesamte Sites gemanaged werden können und fand sie
- z.B.
- in folgenden Orten
-\end_layout
-
-\begin_layout Itemize
-\begin_inset CommandInset href
-LatexCommand href
-name "http://projects.puppetlabs.com/projects/puppet/wiki/Complete_Configuration"
-target "http://projects.puppetlabs.com/projects/puppet/wiki/Complete_Configuration"
-
-\end_inset
-
-.
- Web-Server der alles veröffentlicht, inkl.
- Beispiele für sich selber und seine Eltern.
-\end_layout
-
-\begin_layout Itemize
-Die ETH-Zürich scheint es zu gebrauchen: 
-\begin_inset CommandInset href
-LatexCommand href
-name "http://git.sans.ethz.ch/"
-target "http://git.sans.ethz.ch/"
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Itemize
-Diverse Module/Applikationen findet man unter 
-\begin_inset CommandInset href
-LatexCommand href
-name "http://forge.puppetlabs.com/"
-target "http://forge.puppetlabs.com/"
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
 Dieses Dokument begonnen.
-\end_layout
 
-\begin_layout Standard
 http://www.debian-administration.org/articles/526
-\end_layout
 
-\begin_layout Standard
-Dort beklagt sich auch jemand, dass puppet viel zuviel Memory braucht (400
- MB)
-\end_layout
+Dort beklagt sich auch jemand, dass puppet viel zuviel Memory braucht (400 MB)
 
-\begin_layout Standard
 http://projects.puppetlabs.com/projects/1/wiki/Using_Thin_Nginx
-\end_layout
 
-\begin_layout Subsection
-Vorstellungen
-\end_layout
+2.3 Vorstellungen
 
-\begin_layout Standard
-github (oder ähnliches) gebrauchen und Projekt/Absicht bei Medelexis-OC
- & Elexis-Entwickler-Treffen ankündigen.
-\end_layout
+github (oder ähnliches) gebrauchen und Projekt/Absicht bei Medelexis-OC & Elexis-Entwickler-Treffen ankündigen.
 
-\begin_layout Standard
-Beginnen mit autofs-Konfiguration (das kann ich nämlich gebrauchen und ist
- etwas trickreich).
- 4hudson (export/uses)
-\end_layout
+Beginnen mit autofs-Konfiguration (das kann ich nämlich gebrauchen und ist etwas trickreich). 4hudson (export/uses)
 
-\begin_layout Standard
 Checkout von git-repository
-\end_layout
 
-\begin_layout Standard
 etckeeper einbauen
-\end_layout
 
-\begin_layout Standard
 Danach Benutzer-Konfiguration mit folgenden Anforderungen:
-\end_layout
 
-\begin_layout Itemize
-Benutzer/Passwort-Kombination von nicht public lesbaren Ort holen.
- Oder gleiches Default-Passwort für alle Benutzer.
- Dazu Extlookup benutzen (Siehe Release Notes 2.6.1)
-\end_layout
+• Benutzer/Passwort-Kombination von nicht public lesbaren Ort holen. Oder gleiches Default-Passwort für alle Benutzer. Dazu Extlookup benutzen (Siehe Release Notes 2.6.1)
 
-\begin_layout Itemize
-Yubico-Key verwenden (Optional)
-\end_layout
+• Yubico-Key verwenden (Optional)
 
-\begin_layout Itemize
-Beim Aufsetzen Passwort muss sofort geändert werden.
-\end_layout
+• Beim Aufsetzen Passwort muss sofort geändert werden.
 
-\begin_layout Standard
 Puppet-Master verwenden (ngiger.dyndns.org zu Beginn, für Demo-Zwecke github)
-\end_layout
 
-\begin_layout Standard
 Report generieren und ablegen.
-\end_layout
 
-\begin_layout Standard
-Wie die SSH-Zertifikate von Server, Client, Benutzer, Firewall (OpenVPN)
- sicher verwalten.
- Integration in simple-cdd (z.B.
- Puppet, OpenSSH-Server, OpenVPN installieren und Zertifikate vom Puppet-Master
- holen oder auf CD mitbringen).
- OpenVPN immer/nur auf Verlangen verbunden zu PuppetMaster.
-\end_layout
+Wie die SSH-Zertifikate von Server, Client, Benutzer, Firewall (OpenVPN) sicher verwalten. Integration in simple-cdd (z.B. Puppet, OpenSSH-Server, OpenVPN installieren und Zertifikate vom Puppet-Master holen oder auf CD mitbringen). OpenVPN immer/nur auf Verlangen verbunden zu PuppetMaster.
 
-\begin_layout Standard
 DHCP oder fixe IP/hostname/domainname/gateway verwenden (simple-cdd)
-\end_layout
 
-\begin_layout Standard
 Postgres/MySql Hot-Backup verwenden.
-\end_layout
 
-\begin_layout Standard
-Auf Home-PCs wie gs,mm,transtec diejenigen Pakete/Sachen mit Puppet verwalten,
- welche nicht mit den Defaults von Debian abgedeckt werden.
- Wichtige Pakete (etckeeper, git, cups, autofs, rsync) per Default installieren.
-\end_layout
+Auf Home-PCs wie gs,mm,transtec diejenigen Pakete/Sachen mit Puppet verwalten, welche nicht mit den Defaults von Debian abgedeckt werden. Wichtige Pakete (etckeeper, git, cups, autofs, rsync) per Default installieren.
 
-\begin_layout Standard
-
-\lang french
 http://rdiff-backup.nongnu.org/ with puppet-module!
-\end_layout
 
-\begin_layout Standard
 Bridge für virtuelle Maschinen offerieren.
-\end_layout
-
-\end_body
-\end_document

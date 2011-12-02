@@ -15,13 +15,21 @@
 # as well on Luke Kanies 
 # http://github.com/lak/puppet-postgres/tree/master
 #
+class postgres::common {
+   case $operatingsystem {
+      /Debian|Ubuntu/:  { $postgres_server_pkg = 'postgresql'
+			  $postgres_cfg_path  = '/etc/postgresql/8.4/main'
+			  $postgres_base_path = '/var/lib/postgresql/8.4/main'
+			  $postgres_client_pkg = 'postgresql-client' }
+      default:          { $postgres_server_pkg = 'postgresql-server'
+			  $postgres_cfg_path = '/var/lib/pgsql/data' 
+			  $postgres_base_path = '/var/lib/pgsql'
+			  $postgres_client_pkg = 'postgresql'
+                        }
+    }  
+}
 
 class postgres {
-  case $operatingsystem {
-    centos: { include postgres::server::centos } 
-    gentoo: { include postgres::server::gentoo } 
-    default: { include postgres::server }
-  }
   if $use_munin {
     include postgres::munin
   }

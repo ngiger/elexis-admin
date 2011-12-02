@@ -1,5 +1,5 @@
-class postgres::client {
-  package{'postgresql':
+class postgres::client inherits postgres::common  {
+  package{$postgres_client_pkg:
     ensure => present,
   }
   if $use_shorewall {
