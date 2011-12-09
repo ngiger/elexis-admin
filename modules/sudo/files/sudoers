@@ -4,7 +4,7 @@
 #
 # See the man page for details on how to write a sudoers file.
 #
-# Niklaus Added some comment on November 11 to test whether this work
+# Managed via puppet!
 
 
 Defaults	env_reset
