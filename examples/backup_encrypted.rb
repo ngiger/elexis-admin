@@ -44,7 +44,6 @@ options[:mountId]    = File.basename(options[:device])
 def system(cmd, dryRun = DryRun)
   puts cmd if dryRun
   return if dryRun
-  puts cmd
   res = Kernel::system(cmd)
   unless res
     Kernel::system("logger #{__FILE__}: failed running '#{cmd}'") 
@@ -55,7 +54,7 @@ end
 
 def createMountPoint(id)
   mountPoint = "/mnt/#{id}"
-  system("mkdir -p #{mountPoint}")
+  system("mkdir -p #{mountPoint}") unless File.directory?(mountPoint)
   mountPoint
 end
 
