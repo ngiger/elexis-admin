@@ -1,0 +1,376 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 0
+\index Stichwortverzeichnis
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Manual for Elexis Admin
+\end_layout
+
+\begin_layout Abstract
+Manual for adminstrator for Elexis focused medical practices.
+\end_layout
+
+\begin_layout Address
+Niklaus Giger, Wieshoschet 6, CH-8753 Mollis
+\end_layout
+
+\begin_layout Section
+Goals
+\end_layout
+
+\begin_layout Itemize
+Document some design decision
+\end_layout
+
+\begin_layout Itemize
+Give hints for some common problems, task.
+ Eg.
+ what to do when a new version of Debian is released
+\end_layout
+
+\begin_layout Itemize
+Give hints on how to find information
+\end_layout
+
+\begin_layout Section
+Getting started
+\end_layout
+
+\begin_layout Subsection
+Used Tools
+\end_layout
+
+\begin_layout Standard
+Elexis admin uses a plethora of free software tools
+\end_layout
+
+\begin_layout Itemize
+Based on the stable release of GNU/Debian/Linux for server.
+ Clients can use Windows, MacOSX or other Linux-distribution, e.g.
+ Ubuntu.
+\end_layout
+
+\begin_layout Itemize
+Virtualization, often VirtualBox and kvm/qemu/libvirt
+\end_layout
+
+\begin_layout Itemize
+Use veewee to create base boxes for virtualbox and kvm which have a known
+ good combination of Ruby, gem, bundler, Puppet, librarian-puppet pre-installed
+ (Sometimes also already localized for swiss-german)
+\end_layout
+
+\begin_layout Itemize
+Vagrant (mostly Virtualbox, as kvm is still a little bit unstable) to bring
+ up several virtual machines to test a real setup and experiment with changes/ad
+aptions for a given practice.
+\end_layout
+
+\begin_layout Itemize
+Puppet with hiera, augeas, facter
+\end_layout
+
+\begin_layout Itemize
+Hiera, a hierarchical, yaml based backend which stores the configuration.
+ Ideally everything can be fine tuned using
+\end_layout
+
+\begin_layout Itemize
+Java
+\end_layout
+
+\begin_layout Itemize
+Elexis
+\end_layout
+
+\begin_layout Itemize
+database server is either mysql or postgresql
+\end_layout
+
+\begin_layout Itemize
+Samba for sharing network drives with MacOSX and Windows users 
+\end_layout
+
+\begin_layout Itemize
+rsync/rsnapshot 
+\end_layout
+
+\begin_layout Itemize
+x2go for thin clients
+\end_layout
+
+\begin_layout Itemize
+elexis-cockpit to visualize health status of Elexis DB 
+\end_layout
+
+\begin_layout Subsection
+First steps
+\end_layout
+
+\begin_layout Standard
+Get acquainted with the tools! Use small steps.
+ Skip veewee unless you must port elexis admin to a new Debian/Ubuntu version.
+ If you like learing by doing I suggest the following steps (assuming a
+ good desktop system with a 2 cores and at least 2 GB tos spare):
+\end_layout
+
+\begin_layout Standard
+Checkout 
+\begin_inset CommandInset href
+LatexCommand href
+name "elexis-vagrant"
+target "https://github.com/ngiger/elexis-vagrant"
+
+\end_inset
+
+, install vagrant (1.6.0) and Virtualbox (e.g.
+ 4.3.x).
+ In the checkout try to get the following commands to work 
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+vagrant up server # might take several minutes as it must download a lot
+ of stuff
+\end_layout
+
+\begin_layout Plain Layout
+
+vagrant ssh server # if you succeed, you may have a look around your elexis
+ server
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Design decisions
+\end_layout
+
+\begin_layout Standard
+Every item should be configurable (if there is any need) by a hiera variable,
+ as this helps to keep the code clean.
+\end_layout
+
+\begin_layout Standard
+Here a short justification for my configuration of /etc/hiera.yaml
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+:yaml:
+\end_layout
+
+\begin_layout Plain Layout
+
+	:datadir: /etc/hieradata
+\end_layout
+
+\begin_layout Plain Layout
+
+:hierarchy:
+\end_layout
+
+\begin_layout Plain Layout
+
+  - '%{::environment}/%{::fqdn}' # most specialised.
+ Only needed to override default values
+\end_layout
+
+\begin_layout Plain Layout
+
+  - '%{::environment}/%{calling_module}' # if you want to test module variable
+ in the development
+\end_layout
+
+\begin_layout Plain Layout
+
+  - '%{::environment}/%{::environment}'  # handy for development
+\end_layout
+
+\begin_layout Plain Layout
+
+  - 'common/%{calling_module}' # default values for modules (not much used
+ at the moment)
+\end_layout
+
+\begin_layout Plain Layout
+
+  - common # sane default values.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In the code we always part from the idea that some user DO NOT like our
+ stuff.
+ In this case you should not install anything and if possible even cleanup
+ stuff a client does not like anymore.
+ (Opt-Out possibilty) a good idea is to have a tests/absent.pp which cleans
+ up everything.
+\end_layout
+
+\begin_layout Subsubsection
+User home
+\end_layout
+
+\begin_layout Standard
+Puppet has no good project for managing home directories.
+ Therefore I wrote my own in puppet-elexis/manifests/users.pp.
+ Idea is that password are stored in cleartext in a private hieradata directory
+ where normal users cannot read.
+\end_layout
+
+\begin_layout Subsubsection
+User desktop experience
+\end_layout
+
+\begin_layout Standard
+puppet-desktop/manifests should fulfill (Peter Schönbucher's) requirements
+\end_layout
+
+\begin_layout Itemize
+Add shortcuts for Elexis (KDE-Launcher, Favorits, but not desktop)
+\end_layout
+
+\begin_layout Itemize
+Shortcuts for some users for Elexis test database
+\end_layout
+
+\begin_layout Itemize
+Shortcuts for commonly used application
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+FileManager (nemo)
+\end_layout
+
+\begin_layout Itemize
+WebBrowser (firefox)
+\end_layout
+
+\begin_layout Itemize
+MailClient (thunderbird)
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Irfanview via wine (needs ghostscript for PDF).
+ Should be default viewer for pdf, tiff, png.
+\end_layout
+
+\begin_layout Subsubsection
+Samba
+\end_layout
+
+\begin_layout Standard
+No PDC.
+ Only offers network devices.
+ Migrating PDC from one server to another is not easy and did cost Peter,
+ Daniel and Lutz over a day in May 2014.
+\end_layout
+
+\begin_layout Standard
+Fax/Print-To-PDF-File should work
+\end_layout
+
+\begin_layout Subsection
+Ideas for further work
+\end_layout
+
+\begin_layout Itemize
+Setup initial Elexis database
+\end_layout
+
+\begin_layout Itemize
+Add support for 
+\end_layout
+
+\begin_layout Itemize
+Rethink security, password, ssh certifacts, access via OpenVPN and/or ssh
+\end_layout
+
+\begin_layout Itemize
+Yubico-Key verwenden (Optional)
+\end_layout
+
+\begin_layout Itemize
+Asterisk
+\end_layout
+
+\end_body
+\end_document

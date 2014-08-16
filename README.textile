@@ -13,16 +13,31 @@ h2. Typical setup
 * Backup: eSata/NAS (at least 2 pieces regulary swapped in a safe place, e.g. a safe in a Swiss bank
 * Optional: Linux/MacOSX/Win?? PC with full elexis installation
 * Optional: ThinClient (inside cabinet or via internet) using x2go
+* Optional: Backup on encrypted HD disks, also on remote location using a Raspberry-PI
 
-h2. Tools used are (among a lot of others):
+h2. Tools used (among a lot of others)
 
-* simple-cdd (Custom Debian Distribution)
-* puppet 
+* GNU/Debian/Linux
+* veewee
+* virtualbox or kvm 
+* vagrant
+* puppet with hiera, augeas, facter
+* ruby (with a lot of rubygems, bundler)
+* java
+* mysql or postgresql for the database server
+* Samba for sharing network drives with MacOSX and Windows users
+* rsync/rsnapshot
+* x2go for thin clients
+* elexis
+* elexis-cockpit to visualize health status of Elexis DB
 
+h2. Developer 
+
+* get the "Manual":doc/manual.pdf
 
 h2. New to puppet?
 
-Then have a look at "Getting Started":doc/getting_started.htm
+Then have a look at "Getting Started":doc/getting_started.textile
 * http://bitfieldconsulting.com/puppet-tutorial
 * http://bitfieldconsulting.com/scaling-puppet-with-distributed-version-control
 
