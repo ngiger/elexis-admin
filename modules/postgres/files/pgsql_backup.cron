@@ -1,1 +1,0 @@
-45 23 * * * postgres /usr/bin/pg_dumpall > /var/lib/pgsql/backups/pg_dumpall.sql && chmod 600 /var/lib/pgsql/backups/pg_dumpall.sql

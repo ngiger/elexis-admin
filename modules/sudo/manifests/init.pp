@@ -1,3 +1,0 @@
-class sudo {
-	import "*.pp"
-}

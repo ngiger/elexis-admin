@@ -1,1 +1,0 @@
-30 0 * * *  postgres    for db in `/usr/bin/psql --no-align -ltF: | /bin/cut -d : -f 1 | /bin/grep -Ev '(^template[0-9]$|^postgres$)'`; do /usr/bin/vacuumdb -d $db -f -z | /bin/grep -v VACUUM; done
